@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:product_catalog/data/api/product_api.dart';
+import 'package:product_catalog/data/repository/product_repository.dart';
+import 'package:product_catalog/presentation/controllers/product_detail_controller.dart';
 import 'package:product_catalog/presentation/controllers/products_controller.dart';
+import 'package:product_catalog/presentation/views/product_detail_page.dart';
 import 'package:product_catalog/presentation/widgets/product_card.dart';
 
 class ProductsPage extends GetView<ProductListController> {
@@ -70,7 +74,19 @@ class ProductsPage extends GetView<ProductListController> {
                     );
                   }
                   final product = controller.products[index];
-                  return ProductCard(product: product, onTap: () {});
+                  return ProductCard(
+  product: product,
+  onTap: () => Get.to(
+    () => const ProductDetailPage(),
+    binding: BindingsBuilder(() {
+      Get.put(ProductDetailController(
+        ProductRepository(ProductApi()),
+        product.id,
+      ));
+    }),
+  ),
+);
+
                 },
               ),
             );
