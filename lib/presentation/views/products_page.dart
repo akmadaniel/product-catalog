@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:product_catalog/presentation/controllers/products_controller.dart';
+import 'package:product_catalog/presentation/widgets/product_card.dart';
 
 class ProductsPage extends GetView<ProductListController> {
   const ProductsPage({super.key});
@@ -51,16 +52,27 @@ class ProductsPage extends GetView<ProductListController> {
           case ViewState.empty:
             return const Center(child: Text('No products found'));
           case ViewState.success:
-            return ListView.builder(
-              controller: controller.scrollController,
-              itemCount: controller.products.length,
-              itemBuilder: (context, index) {
-                final product = controller.products[index];
-                return ListTile(
-                  title: Text(product.title),
-                  subtitle: Text('\$${product.price}'),
-                );
-              },
+            return RefreshIndicator(
+              onRefresh: controller.onPullRefresh,
+              child: ListView.builder(
+                controller: controller.scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: controller.products.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == controller.products.length) {
+                    return Obx(
+                      () => controller.isLoadingMore.value
+                          ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  }
+                  final product = controller.products[index];
+                  return ProductCard(product: product, onTap: () {});
+                },
+              ),
             );
         }
       }),
