@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:product_catalog/data/model/product.dart';
 import 'package:product_catalog/data/model/product_list.dart';
@@ -17,6 +18,7 @@ class ProductListController extends GetxController {
   final products = <Product>[].obs;
   final errorMessage = ''.obs;
   final isLoadingMore = false.obs;
+  final scrollController = ScrollController();
 
   int _skip = 0;
   int _total = 0;
@@ -31,11 +33,18 @@ class ProductListController extends GetxController {
   void onInit() {
     super.onInit();
     loadInitial();
+    scrollController.addListener(() {
+      final pos = scrollController.position;
+      if (pos.pixels >= pos.maxScrollExtent - 200) {
+        loadMore();
+      }
+    });
   }
 
   @override
   void onClose() {
     _debounce?.cancel();
+    scrollController.dispose();
     super.onClose();
   }
 
